@@ -3,21 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Economics Video Lecture Playlist Selector</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>Economics YouTube Video Viewer</title>
+    <style>
+        :root {
+            --primary-color: #2980b9;
+            --secondary-color: #27ae60;
+            --accent-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        select {
+            background-color: white;
+        }
+
+        .option-available {
+            font-weight: bold;
+        }
+
+        .option-unavailable {
+            color: #aaa;
+            filter: blur(0.5px);
+            cursor: not-allowed;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1a5b89;
+        }
+
+        #videoContainer {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .video-details {
+            margin-top: 20px;
+        }
+
+        .upgrade-message {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .upgrade-message button {
+            background-color: white;
+            color: var(--accent-color);
+            margin-top: 10px;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>Economics YouTube Viewer</h1>
+        <p>Watch educational economics videos</p>
+    </header>
+
     <div class="container">
-        <h2>Economics Video Lecture Playlist Selector</h2>
-        <select id="topicSelector">
-            <option value="">Select an Economics Topic</option>
-            <option value="Microeconomics">Microeconomics</option>
-            <option value="Macroeconomics">Macroeconomics</option>
-            <option value="InternationalEconomics">International Economics</option>
-        </select>
-        <button id="goButton" disabled>Go to Video Playlist</button>
+        <div class="form-group">
+            <label for="topicSelect">Select Economics Topic:</label>
+            <select id="topicSelect">
+                <option value="" disabled>-- Select a topic --</option>
+                <option value="microeconomics" class="option-available" selected>Microeconomics</option>
+                <option value="macroeconomics" class="option-available">Macroeconomics</option>
+                <option value="international" class="option-available">International Economics</option>
+                <option value="behavioral" class="option-unavailable">Behavioral Economics</option>
+                <option value="development" class="option-unavailable">Development Economics</option>
+                <option value="econometrics" class="option-unavailable">Econometrics</option>
+                <option value="environmental" class="option-unavailable">Environmental Economics</option>
+                <option value="financial" class="option-unavailable">Financial Economics</option>
+                <option value="health" class="option-unavailable">Health Economics</option>
+                <option value="labor" class="option-unavailable">Labor Economics</option>
+            </select>
+        </div>
+
+        <div id="inputContainer" style="display: block;">
+            <div class="form-group">
+                <label for="videoUrl">Enter YouTube Video URL:</label>
+                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." />
+            </div>
+            <button id="loadVideo">Load Video</button>
+        </div>
+
+        <div id="upgradeMessage" class="upgrade-message" style="display: none;">
+            <p>UPGRADE TO PRO to access this topic!</p>
+            <button id="dismissUpgrade">Dismiss</button>
+        </div>
+
+        <div id="messageContainer" class="message success" style="display: block;">Successfully selected Microeconomics!</div>
+
+        <div id="videoContainer" style="display: none;">
+            <h2 id="videoTitle"></h2>
+            <div class="video-wrapper">
+                <iframe id="videoFrame" allowfullscreen></iframe>
+            </div>
+            <div class="video-details">
+                <p id="videoDescription"></p>
+            </div>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <footer>
+        <p>&copy; 2025 Economics YouTube Viewer | Educational Purposes Only</p>
+    </footer>
 </body>
 </html>
